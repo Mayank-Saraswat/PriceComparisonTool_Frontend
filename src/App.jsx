@@ -5,6 +5,7 @@ function App() {
   const [product, setProduct] = useState("");
   const [prices, setPrices] = useState({});
   const [minPrice, setMinPrice] = useState(Infinity);
+  const [flipkartImageUrl, setFlipkartImageUrl] = useState("");
 
   const fetchPrices = async () => {
     try {
@@ -26,6 +27,7 @@ function App() {
       };
       setPrices(cleanedPrices);
       setMinPrice(Math.min(cleanedPrices.Amazon, cleanedPrices.Flipkart));
+      setFlipkartImageUrl(response.data.Flipkart_Image_URL);
     } catch (error) {
       console.error("Error fetching prices:", error);
     }
@@ -98,6 +100,15 @@ function App() {
                 </span>
               )}
             </div>
+            {flipkartImageUrl && (
+              <div>
+                <img
+                  src={flipkartImageUrl}
+                  alt="Flipkart Product"
+                  className="mt-4 mx-auto"
+                />
+              </div>
+            )}
           </div>
         )}
         <div className="mt-3 mx-auto w-full md:w-1/2">
