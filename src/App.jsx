@@ -14,7 +14,7 @@ function App() {
         return;
       }
       const response = await axios.get(
-        `http://localhost:5000/api/prices?product=${product}`
+        `http://localhost:5000/prices?product=${product}`
       );
 
       const randomProductPrices = [
