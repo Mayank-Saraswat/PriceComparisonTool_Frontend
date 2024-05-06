@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Navbar from "./Components/Navbar";
+import Footer from "./Components/Footer";
+import GraphImg1 from "../public/GraphImg1.png";
+import GraphImg2 from "../public/GraphImg2.png";
+import PercentageImg from "../public/PercentageImg.png";
 
 function App() {
   const [product, setProduct] = useState("");
@@ -56,8 +61,14 @@ function App() {
 
   const { bestPricePlatform } = getBestPrice();
 
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    fetchPrices(); // Call fetchPrices function when form is submitted
+  };
+
   return (
     <>
+      <Navbar />
       <h2 className="m-3 text-center text-5xl font-semibold text-sky-800">
         Price Comparison Tool
       </h2>
@@ -68,19 +79,21 @@ function App() {
         strategy accordingly.
       </h2>
       <div className="m-5 text-center">
-        <input
-          type="text"
-          value={product}
-          onChange={(e) => setProduct(e.target.value)}
-          placeholder="Enter product name"
-          className="p-1 mr-2 mb-2 w-full md:w-1/3 border-2 border-green-600"
-        />
-        <button
-          className="py-1 px-5 bg-green-600 rounded text-white font-semibold hover:bg-green-700"
-          onClick={fetchPrices}
-        >
-          Get Prices
-        </button>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={product}
+            onChange={(e) => setProduct(e.target.value)}
+            placeholder="Enter product name"
+            className="p-1 mr-2 mb-2 w-full h-12 md:w-1/3 border-2 border-green-600"
+          />
+          <button
+            type="submit"
+            className="py-1 px-10 h-12 bg-green-600 rounded text-white text-lg font-semibold hover:bg-green-700"
+          >
+            Get Prices
+          </button>
+        </form>
 
         {minPrice !== Infinity && (
           <div>
@@ -92,7 +105,7 @@ function App() {
               </ul>
             </div>
 
-            <div className="mt-2 p-2 text-2xl text-rose-600 w-full md:w-1/2 mx-auto shadow-2xl">
+            <div className="mt-2 p-2 text-2xl text-rose-600 w-full md:w-1/2 mx-auto shadow-2xl rounded-lg">
               {bestPricePlatform === "both Amazon and Flipkart" ? (
                 <span>
                   Best price after comparison is the same on both Amazon and
@@ -124,6 +137,37 @@ function App() {
           getting a price as sometimes data fetching takes some time.
         </div>
       </div>
+
+      <div className="bg-rose-50 pt-3 pb-8">
+        <h1 className="p-3 text-3xl font-semibold text-center">
+          Price comparison - Core use cases
+        </h1>
+        <div className="flex flex-wrap text-center justify-center">
+          <div className="bg-white rounded-xl mx-3 my-3 shadow-2xl w-[30%]">
+            <img src={GraphImg1} alt="Graph Image" />
+            <h2 className="text-2xl font-bold">Price comparison</h2>
+            <div className="text-xl m-3 p-3 rounded-xl bg-lime-100">
+              Know your competitors’ prices and their relation to yours.
+            </div>
+          </div>
+          <div className="bg-white rounded-xl my-3 shadow-2xl w-[30%]">
+            <img src={GraphImg2} alt="Graph Image" />
+            <h2 className="text-2xl font-bold">Discovering trends</h2>
+            <div className="text-xl m-3 p-3 rounded-xl bg-lime-100">
+              Time-stamp price changes and identify the source of price-drop
+              chain reactions.
+            </div>
+          </div>
+          <div className="bg-white rounded-xl mx-3 my-3 shadow-2xl w-[30%]">
+            <img src={PercentageImg} alt="Percentage Image" />
+            <h2 className="text-2xl font-bold">Seizing opportunities</h2>
+            <div className="text-xl m-3 p-3 rounded-xl bg-lime-100">
+              Always be aware of good promotion opportunities.
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
     </>
   );
 }
