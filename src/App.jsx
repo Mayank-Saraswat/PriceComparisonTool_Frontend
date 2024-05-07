@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
-import GraphImg1 from "../public/GraphImg1.png";
-import GraphImg2 from "../public/GraphImg2.png";
-import PercentageImg from "../public/PercentageImg.png";
+import GraphImg1 from "/GraphImg1.png";
+import GraphImg2 from "/GraphImg2.png";
+import PercentageImg from "/PercentageImg.png";
 
 function App() {
   const [product, setProduct] = useState("");
@@ -69,23 +69,23 @@ function App() {
   return (
     <>
       <Navbar />
-      <h2 className="m-3 text-center text-5xl font-semibold text-sky-800">
+      <h2 className="m-3 text-center text-5xl font-semibold text-sky-500">
         Price Comparison Tool
       </h2>
-      <h2 className="mx-auto text-center text-lg md:w-1/2">
+      <h2 className="p-2 mx-auto text-white text-center text-lg md:w-1/2">
         Track your competition in real-time, compare prices and make better
         pricing decisions. The main purpose of this price comparison tool is to
         help you monitor competitors’ prices in order to adjust your pricing
         strategy accordingly.
       </h2>
-      <div className="m-5 text-center">
+      <div className="m-5 p-6 text-center bg-white shadow-2xl md:w-[60%] mx-auto">
         <form onSubmit={handleSubmit}>
           <input
             type="text"
             value={product}
             onChange={(e) => setProduct(e.target.value)}
             placeholder="Enter product name"
-            className="p-1 mr-2 mb-2 w-full h-12 md:w-1/3 border-2 border-green-600"
+            className="p-1 mr-2 mb-2 w-full h-12 md:w-2/3 border-2 border-green-600"
           />
           <button
             type="submit"
@@ -105,7 +105,7 @@ function App() {
               </ul>
             </div>
 
-            <div className="mt-2 p-2 text-2xl text-rose-600 w-full md:w-1/2 mx-auto shadow-2xl rounded-lg">
+            <div className="mt-2 p-3 text-2xl text-rose-600 w-full md:w-1/2 mx-auto shadow-xl rounded-lg">
               {bestPricePlatform === "both Amazon and Flipkart" ? (
                 <span>
                   Best price after comparison is the same on both Amazon and
@@ -138,8 +138,8 @@ function App() {
         </div>
       </div>
 
-      <div className="bg-rose-50 pt-3 pb-8">
-        <h1 className="p-3 text-3xl font-semibold text-center">
+      <div className="pt-3 pb-8">
+        <h1 className="p-3 text-white text-3xl font-semibold text-center">
           Price comparison - Core use cases
         </h1>
         <div className="flex flex-wrap text-center justify-center">
