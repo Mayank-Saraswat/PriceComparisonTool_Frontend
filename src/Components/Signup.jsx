@@ -12,13 +12,27 @@ const Signup = () => {
 
   const registerUser = (e) => {
     e.preventDefault(); // Prevent form from resetting
-    if (password !== confirmPassword) {
-      setPasswordError("Passwords do not match");
+
+    // Password validation
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setPasswordError(
+        "Password must be at least 8 characters long, include one capital letter, one special symbol, and one number."
+      );
       setTimeout(() => {
         setPasswordError("");
       }, 5000); // Clear error message after 5 seconds
       return;
     }
+
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match");
+      setTimeout(() => {
+        setPasswordError("");
+      }, 5000);
+      return;
+    }
+
     axios
       .post("http://127.0.0.1:5000/signup", {
         email: email,
@@ -33,8 +47,10 @@ const Signup = () => {
       })
       .catch(function (error) {
         console.log(error, "error");
-        if (error.response.status === 401) {
+        if (error.response && error.response.status === 401) {
           alert("Invalid credentials");
+        } else {
+          alert("An error occurred. Please try again.");
         }
       });
   };
@@ -50,7 +66,10 @@ const Signup = () => {
               </h1>
               <form className="space-y-4 md:space-y-6" onSubmit={registerUser}>
                 <div>
-                  <label for="email" className="block mb-2 text-sm font-medium">
+                  <label
+                    htmlFor="email"
+                    className="block mb-2 text-sm font-medium"
+                  >
                     Your email
                   </label>
                   <input
@@ -66,7 +85,7 @@ const Signup = () => {
                 </div>
                 <div>
                   <label
-                    for="password"
+                    htmlFor="password"
                     className="block mb-2 text-sm font-medium"
                   >
                     Password
@@ -84,7 +103,7 @@ const Signup = () => {
                 </div>
                 <div>
                   <label
-                    for="confirm-password"
+                    htmlFor="confirm-password"
                     className="block mb-2 text-sm font-medium"
                   >
                     Confirm password
@@ -114,7 +133,7 @@ const Signup = () => {
                     />
                   </div>
                   <div className="ml-3 text-sm">
-                    <label for="terms">
+                    <label htmlFor="terms">
                       I accept the{" "}
                       <a
                         className="font-medium text-indigo-600 hover:text-indigo-700 hover:underline"
