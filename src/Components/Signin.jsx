@@ -15,21 +15,24 @@ const Signin = () => {
     } else if (password.length === 0) {
       alert("Password has left Blank!");
     } else {
+      const API = import.meta.env.VITE_API_URL;
+
       axios
-        .post("http://127.0.0.1:5000/login", {
+        .post(`${API}/login`, {
           email: email,
           password: password,
         })
         .then(function (response) {
           console.log(response);
-          //console.log(response.data);
           alert("Welcome to your account!");
           navigate("/");
         })
         .catch(function (error) {
           console.log(error, "error");
-          if (error.response.status === 401) {
+          if (error.response?.status === 401) {
             alert("Invalid credentials");
+          } else {
+            alert("Server unavailable");
           }
         });
     }

@@ -24,9 +24,9 @@ function Index() {
         alert("Please enter a valid product name");
         return;
       }
-      const response = await axios.get(
-        `http://localhost:5000/prices?product=${product}`
-      );
+      const API = import.meta.env.VITE_API_URL;
+
+      const response = await axios.get(`${API}/prices?product=${product}`);
 
       const amazonPriceCleaned = isNaN(
         parseFloat(response.data.Amazon.replace("₹", "").replace(",", ""))

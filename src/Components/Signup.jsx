@@ -33,21 +33,23 @@ const Signup = () => {
       return;
     }
 
+    const API = import.meta.env.VITE_API_URL;
+
     axios
-      .post("http://127.0.0.1:5000/signup", {
+      .post(`${API}/signup`, {
         email: email,
         password: password,
       })
       .then(function (response) {
         console.log(response);
         alert(
-          "Account created successfully. Please login with your credentials."
+          "Account created successfully. Please login with your credentials.",
         );
         navigate("/signin");
       })
       .catch(function (error) {
         console.log(error, "error");
-        if (error.response && error.response.status === 401) {
+        if (error.response && error.response?.status === 401) {
           alert("Invalid credentials");
         } else {
           alert("An error occurred. Please try again.");
