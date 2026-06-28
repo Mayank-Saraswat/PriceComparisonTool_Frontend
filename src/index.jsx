@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import GraphImg1 from "/GraphImg1.png";
-import GraphImg2 from "/GraphImg2.png";
-import PercentageImg from "/PercentageImg.png";
+import ToolUses from "./Components/ToolUses";
 
 function Index() {
   const [product, setProduct] = useState("");
@@ -18,9 +16,22 @@ function Index() {
     setSearchHistory(history);
   }, []);
 
+  // Helper function to clean and validate price strings
+  const cleanPrice = (priceString) => {
+    if (!priceString || typeof priceString !== "string") return NaN;
+    try {
+      const cleaned = parseFloat(
+        priceString.replace("₹", "").replace(/,/g, "").trim(),
+      );
+      return isNaN(cleaned) || cleaned < 0 ? NaN : cleaned;
+    } catch {
+      return NaN;
+    }
+  };
+
   const fetchPrices = async () => {
     try {
-      if (!product) {
+      if (!product || product.trim() === "") {
         alert("Please enter a valid product name");
         return;
       }
@@ -28,22 +39,29 @@ function Index() {
 
       const response = await axios.get(`${API}/prices?product=${product}`);
 
-      const amazonPriceCleaned = isNaN(
-        parseFloat(response.data.Amazon.replace("₹", "").replace(",", ""))
-      )
-        ? parseFloat(response.data.Flipkart.replace("₹", "").replace(",", "")) +
-          500
-        : parseFloat(response.data.Amazon.replace("₹", "").replace(",", ""));
+      // Clean prices from API response
+      const amazonPrice = cleanPrice(response.data.Amazon);
+      const flipkartPrice = cleanPrice(response.data.Flipkart);
+
+      // Check if at least one price is available
+      if (isNaN(amazonPrice) && isNaN(flipkartPrice)) {
+        alert("Product not found. Please try a different product name.");
+        return;
+      }
 
       const cleanedPrices = {
-        Amazon: amazonPriceCleaned,
-        Flipkart: parseFloat(
-          response.data.Flipkart.replace("₹", "").replace(",", "")
-        ),
+        Amazon: amazonPrice,
+        Flipkart: flipkartPrice,
       };
+
+      // Calculate min price from valid prices only
+      const validPrices = Object.values(cleanedPrices).filter((p) => !isNaN(p));
+      const calculatedMinPrice =
+        validPrices.length > 0 ? Math.min(...validPrices) : Infinity;
+
       setPrices(cleanedPrices);
-      setMinPrice(Math.min(cleanedPrices.Amazon, cleanedPrices.Flipkart));
-      setFlipkartImageUrl(response.data.Flipkart_Image_URL);
+      setMinPrice(calculatedMinPrice);
+      setFlipkartImageUrl(response.data.Flipkart_Image_URL || "");
 
       // Store the search result in local storage
       const newEntry = {
@@ -61,17 +79,26 @@ function Index() {
       setSearchHistory(updatedHistory);
     } catch (error) {
       console.error("Error fetching prices:", error);
+      alert("Error fetching prices. Please try again later.");
     }
   };
 
   const getBestPrice = () => {
     const { Amazon, Flipkart } = prices;
     let bestPricePlatform = "";
-    if (minPrice === Amazon && minPrice === Flipkart) {
-      bestPricePlatform = "both Amazon and Flipkart";
-    } else if (minPrice === Amazon && minPrice !== Flipkart) {
+
+    // Handle cases where one or both prices are unavailable
+    if (isNaN(Amazon) && isNaN(Flipkart)) {
+      bestPricePlatform = "both unavailable";
+    } else if (isNaN(Amazon)) {
+      bestPricePlatform = "Flipkart";
+    } else if (isNaN(Flipkart)) {
       bestPricePlatform = "Amazon";
-    } else if (minPrice === Flipkart && minPrice !== Amazon) {
+    } else if (minPrice === Amazon && minPrice === Flipkart) {
+      bestPricePlatform = "both Amazon and Flipkart";
+    } else if (minPrice === Amazon) {
+      bestPricePlatform = "Amazon";
+    } else if (minPrice === Flipkart) {
       bestPricePlatform = "Flipkart";
     }
     return { bestPricePlatform };
@@ -103,7 +130,7 @@ function Index() {
         help you monitor competitors’ prices in order to adjust your pricing
         strategy accordingly.
       </h2>
-      <div className="m-5 p-6 text-center bg-white shadow-2xl md:w-[60%] mx-auto">
+      <div className="m-5 p-10 rounded text-center bg-white shadow-2xl md:w-[60%] mx-auto">
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -125,13 +152,26 @@ function Index() {
             <div className="mt-5">
               <h2>Prices comparison result (in rupees)</h2>
               <ul className="text-xl">
-                {prices.Amazon && <li>Amazon: ₹{prices.Amazon}</li>}
-                {prices.Flipkart && <li>Flipkart: ₹{prices.Flipkart}</li>}
+                <li>
+                  Amazon:{" "}
+                  {isNaN(prices.Amazon) ? "Not available" : `₹${prices.Amazon}`}
+                </li>
+                <li>
+                  Flipkart:{" "}
+                  {isNaN(prices.Flipkart)
+                    ? "Not available"
+                    : `₹${prices.Flipkart}`}
+                </li>
               </ul>
             </div>
 
             <div className="mt-2 p-3 text-2xl text-rose-600 w-full md:w-1/2 mx-auto shadow-xl rounded-lg">
-              {bestPricePlatform === "both Amazon and Flipkart" ? (
+              {bestPricePlatform === "both unavailable" ? (
+                <span>
+                  Both prices are unavailable. Please try searching for a
+                  different product.
+                </span>
+              ) : bestPricePlatform === "both Amazon and Flipkart" ? (
                 <span>
                   Best price after comparison is the same on both Amazon and
                   Flipkart: ₹{minPrice}. <br />
@@ -157,42 +197,9 @@ function Index() {
             )}
           </div>
         )}
-        <div className="mt-3 mx-auto w-full md:w-1/2">
-          Note: Please press on Get Prices button more than once if you are not
-          getting a price as sometimes data fetching takes some time.
-        </div>
       </div>
 
-      {/* Tool uses description */}
-      <div className="pt-3 pb-8">
-        <h1 className="p-3 text-white text-3xl font-semibold text-center">
-          Price comparison - Core use cases
-        </h1>
-        <div className="flex flex-wrap text-center justify-center">
-          <div className="bg-white rounded-xl mx-3 my-3 shadow-2xl w-[30%]">
-            <img src={GraphImg1} alt="Graph Image" />
-            <h2 className="text-2xl font-bold">Price comparison</h2>
-            <div className="text-xl m-3 p-3 rounded-xl bg-lime-100">
-              Know your competitors’ prices and their relation to yours.
-            </div>
-          </div>
-          <div className="bg-white rounded-xl my-3 shadow-2xl w-[30%]">
-            <img src={GraphImg2} alt="Graph Image" />
-            <h2 className="text-2xl font-bold">Discovering trends</h2>
-            <div className="text-xl m-3 p-3 rounded-xl bg-lime-100">
-              Time-stamp price changes and identify the source of price-drop
-              chain reactions.
-            </div>
-          </div>
-          <div className="bg-white rounded-xl mx-3 my-3 shadow-2xl w-[30%]">
-            <img src={PercentageImg} alt="Percentage Image" />
-            <h2 className="text-2xl font-bold">Seizing opportunities</h2>
-            <div className="text-xl m-3 p-3 rounded-xl bg-lime-100">
-              Always be aware of good promotion opportunities.
-            </div>
-          </div>
-        </div>
-      </div>
+      <ToolUses />
 
       {/* Display search history */}
       <div className="pt-3 pb-8">
@@ -223,10 +230,14 @@ function Index() {
                         {entry.product}
                       </td>
                       <td className="border border-green-600 px-4 py-2">
-                        ₹{entry.prices.Amazon}
+                        {isNaN(entry.prices.Amazon)
+                          ? "Not available"
+                          : `₹${entry.prices.Amazon}`}
                       </td>
                       <td className="border border-green-600 px-4 py-2">
-                        ₹{entry.prices.Flipkart}
+                        {isNaN(entry.prices.Flipkart)
+                          ? "Not available"
+                          : `₹${entry.prices.Flipkart}`}
                       </td>
                     </tr>
                   ))}
